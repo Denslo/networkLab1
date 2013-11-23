@@ -1,6 +1,5 @@
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 
 public class Request {
@@ -31,6 +30,14 @@ public class Request {
 	
 	public String GetType(){
 		return this.GetHedderValue("type");
+	}
+	
+	public void BadRequast(){
+		 this.Add("type:BAD Requast");
+	}
+
+	public String GetHttpVer() {
+		return this.GetType().split(" ")[2];
 	}
 	
 }
