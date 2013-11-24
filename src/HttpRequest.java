@@ -71,4 +71,38 @@ public class HttpRequest implements Runnable {
 		// deque
 	}
 
+	private boolean isVerOK() {
+		boolean retVal = false;
+		
+		if (this.request.GetHttpVer().equals("HTTP/1.1") && this.request.GetHedderValue("Host") != null) {
+			retVal = true;
+		}
+		return retVal;
+	}
+
+	private boolean isVersionSuported() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean isMethodImplemented() {
+		boolean retVal = false;
+		if (this.request.getMethod().equals("GET")) {
+			retVal = true;
+		}
+		if (this.request.getMethod().equals("POST")) {
+			retVal = true;
+		}
+		if (this.request.getMethod().equals("OPTIONS")) {
+			retVal = true;
+		}
+		if (this.request.getMethod().equals("HEAD")) {
+			retVal = true;
+		}
+		if (this.request.getMethod().equals("TRACE")) {
+			retVal = true;
+		}
+		return retVal;
+	}
+
 }

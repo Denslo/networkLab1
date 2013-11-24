@@ -43,4 +43,8 @@ public class Request {
 		return this.GetType().split(" ")[2];
 	}
 
+	public String getMethod() {
+		return this.GetType().split(" ")[0];
+	}
+
 }
