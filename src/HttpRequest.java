@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 public class HttpRequest implements Runnable {
@@ -29,41 +28,13 @@ public class HttpRequest implements Runnable {
 
 			while (!(line = input.readLine()).equals("")) {
 				System.out.println(line);
-				request.Add(line);
+				try {
+					request.Add(line);
+				} catch (Exception e) {
+					// TODO bad requst
+				}
 			}
 			
-			//cheack requst
-			
-			//creat header and data
-			switch (request.GetType()) {
-			case "GET":
-
-				break;
-				
-			case "POST":
-				
-				break;
-				
-			case "OPTIONS":
-				responseOptions();
-				break;
-			
-			case "HEAD":
-				
-				break;
-			
-			case "TRACE":
-				
-				break;
-
-			default:
-				
-				break;
-			}
-			
-			//send data and requst
-			PrintWriter out = new PrintWriter(this.socket.getOutputStream(), true);
-			//close therad
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -78,14 +49,6 @@ public class HttpRequest implements Runnable {
 		// print header
 		// send response
 		// deque
-	}
-
-	private void responseOptions() {
-
-		header.add(HedderUtil.getOK(request.GetHttpVer()));
-		header.add("Allow: GET, POST, OPTIONS, HEAD, TRACE");
-		header.add("Content-Length: 0");
-	
 	}
 
 }
