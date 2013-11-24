@@ -8,39 +8,59 @@ public class HttpRequest implements Runnable {
 	private Socket socket = null;
 	private HttpRequestQueue queue = null;
 	private Request request = null;
-	private Hedder header = null;
+	private Response response = null;
 
-	public HttpRequest(HttpRequestQueue httpRequestQueue, Socket socket) throws IOException {
+	public HttpRequest(HttpRequestQueue httpRequestQueue, Socket socket)
+			throws IOException {
 		this.socket = socket;
 		this.queue = httpRequestQueue;
 		this.request = new Request();
-		this.header = new Hedder();
+		this.response = new Response();
 	}
 
 	@Override
 	public void run() {
 
 		try {
-			
-			//read all requast
+
+			// read all requast
 			String line;
-			BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			BufferedReader input = new BufferedReader(new InputStreamReader(
+					socket.getInputStream()));
 
 			while (!(line = input.readLine()).equals("")) {
 				System.out.println(line);
 				try {
 					request.Add(line);
 				} catch (Exception e) {
-					// TODO bad requst
+					// TODO bad requst 400
 				}
 			}
-			
-			
+
+			// set response as 200 ok
+
+			if (!isMethodImplemented()) {
+				// set response as 501 not implemented
+				// do action
+			}
+
+			if (isVersionSuported()) {
+				if (!isVerOK()) {
+					//400 bad requst
+					//do action
+				}
+			} else {
+				//set as 505 not suported ver
+				//do action
+			}
+
+			//do action
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-			
+
 		}
 		// print requast
 		// pars http requast
