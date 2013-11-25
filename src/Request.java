@@ -21,6 +21,12 @@ public class Request {
 
 		}
 	}
+	
+	public Map<String, String> GetHedders() {
+		Map<String, String> retMap = new HashMap<>(request);
+		retMap.remove("type");
+		return retMap;
+	}
 
 	public String GetHedderValue(String hedder) {
 		return request.get(hedder);
@@ -45,6 +51,10 @@ public class Request {
 
 	public String getMethod() {
 		return this.GetType().split(" ")[0];
+	}
+	
+	public String getPath() {
+		return this.GetType().split(" ")[1];
 	}
 
 }

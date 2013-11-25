@@ -23,6 +23,7 @@ public class Server {
 		try {
 			
 			HttpRequestQueue queue = new HttpRequestQueue(Integer.parseInt(prop.getProperty("maxThreads")));
+			@SuppressWarnings("resource")
 			ServerSocket socket = new ServerSocket(Integer.parseInt(prop.getProperty("port")));
 			
 			while (true)
