@@ -34,10 +34,11 @@ public class HttpRequest implements Runnable {
 					request.Add(line);
 				} catch (Exception e) {
 					// TODO bad requst 400
+					//do action
 				}
 			}
 
-			// set response as 200 ok
+			this.response.addResponsType(HedderUtil.getOK(request.GetHttpVer()));
 
 			if (!isMethodImplemented()) {
 				// set response as 501 not implemented
@@ -83,6 +84,10 @@ public class HttpRequest implements Runnable {
 		boolean retVal = false;
 		
 		if (this.request.GetHttpVer().equals("HTTP/1.1") && this.request.GetHedderValue("Host") != null) {
+			retVal = true;
+		}
+		
+		if (this.request.GetHttpVer().equals("HTTP/1.0")) {
 			retVal = true;
 		}
 		return retVal;
