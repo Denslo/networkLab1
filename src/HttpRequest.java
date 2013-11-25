@@ -55,21 +55,23 @@ public class HttpRequest implements Runnable {
 				//do action
 			}
 
-			//do action
+			handleRequest();
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
+			this.queue.Dequeue();
+		}
+	}
+
+	private void handleRequest() {
+		
+		if (this.response.isOK()) {
 
 		}
-		// print requast
-		// pars http requast
-		// handle by requast type
-		// create http respons header
-		// print header
-		// send response
-		// deque
+		
+		
 	}
 
 	private boolean isVersionSuported() {

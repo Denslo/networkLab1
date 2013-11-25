@@ -4,30 +4,34 @@ import java.util.Map;
 
 public class Response {
 	
-	private Map<String, String> respone = null;
-	final String TYPE = "type";
+	private Map<String, String> headers = null;
+	private String type = null;
 	
 	public Response() {
-		respone = new HashMap<String, String>();
+		headers = new HashMap<String, String>();
 		
 	}
 	
 	public String getHeaderValue(String key){
 		
-		 return respone.get(TYPE);
+		 return headers.get(key);
 	}
 	
 	public void add(String key, String value){
-		respone.put(key, value);
+		headers.put(key, value);
 		
 	}
 	
 	public String getResponsType(){
-		return respone.get(TYPE);
+		return type;
 	}
 	
 	public void addResponsType(String value){
-		respone.put(TYPE, value);
+		type = value;
+	}
+
+	public boolean isOK() {
+		return this.getResponsType().contains("200 OK");
 	}
 
 }
