@@ -71,6 +71,14 @@ public class HttpRequest implements Runnable {
 		// deque
 	}
 
+	private boolean isVersionSuported() {
+		 String version = request.GetHttpVer();
+		 if (version.equals("HTTP/1.0") || version.equals("HTTP/1.1")) {
+			 return true;
+		}
+		return false;
+	}
+
 	private boolean isVerOK() {
 		boolean retVal = false;
 		
@@ -78,11 +86,6 @@ public class HttpRequest implements Runnable {
 			retVal = true;
 		}
 		return retVal;
-	}
-
-	private boolean isVersionSuported() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	private boolean isMethodImplemented() {
