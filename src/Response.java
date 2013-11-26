@@ -9,6 +9,7 @@ public class Response {
 	
 	private Map<String, String> headers = null;
 	private String type = null;
+	private byte[] data = new byte[0];
 	
 	public Response() {
 		headers = new HashMap<String, String>();
@@ -56,7 +57,7 @@ public class Response {
 		this.add("Connection", "close");
 		this.add("Date", dateFormat.format(cal.getTime()));
 		this.add("Server", "Shai & Ran");
-;	}
+	}
 	
 	
 	public void setNotSupported(String httpVersion){
@@ -140,5 +141,49 @@ public class Response {
 		this.add("Server", "Shai & Ran");
 		
 	}
+	
+	public void setNoPermission(String httpVersion){
+		
+		if (!(httpVersion.equals("HTTP/1.0") || httpVersion.equals("HTTP/1.0"))) {
+			httpVersion = "HTTP/1.0";
+		}
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Calendar cal = Calendar.getInstance();
+		
+		this.addResponsType(httpVersion + " 403 Forbidden");
+		this.add("Content-Type", "text/html");
+		this.add("Connection", "close");
+		this.add("Date", dateFormat.format(cal.getTime()));
+		this.add("Server", "Shai & Ran");
+		
+	}
+	
+	public void setUnsupportedMediaType(String httpVersion){
+		
+		if (!(httpVersion.equals("HTTP/1.0") || httpVersion.equals("HTTP/1.0"))) {
+			httpVersion = "HTTP/1.0";
+		}
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Calendar cal = Calendar.getInstance();
+		
+		this.addResponsType(httpVersion + " 415 Unsupported Media Type");
+		this.add("Content-Type", "text/html");
+		this.add("Connection", "close");
+		this.add("Date", dateFormat.format(cal.getTime()));
+		this.add("Server", "Shai & Ran");
+		
+	}
+
+	public void addData(byte[] bFile) {
+		this.data = bFile;
+		
+	}
+
+	public byte[] getData() {
+		return data;
+	}
+
 
 }
