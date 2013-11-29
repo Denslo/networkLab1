@@ -1,13 +1,8 @@
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Map.Entry;
+import java.nio.CharBuffer;
 
 public class HttpRequest implements Runnable {
 
@@ -28,20 +23,20 @@ public class HttpRequest implements Runnable {
 
 		try {
 
-			this.response.setType(request.GetHttpVer() + " 200 OK");
-
 			parsRequest();
 
 			if (response.isOK()) {
 				buildResponse();
 			}
 
+		} catch (Exception e) {
+			this.response.setInternalServerError(request.GetHttpVer());
+		} finally {
+
 			sendResponse();
 
-		} catch (Exception e) {
-			// TODO return 500 internal server error
-		} finally {
 			this.queue.Dequeue();
+
 			try {
 				this.socket.close();
 			} catch (IOException e) {
@@ -124,6 +119,7 @@ public class HttpRequest implements Runnable {
 			try {
 				if (request.getType() == null) {
 					request.setType(line);
+					this.response.setType(request.GetHttpVer() + " 200 OK");
 				} else {
 					request.addHeader(line);
 				}
@@ -152,10 +148,21 @@ public class HttpRequest implements Runnable {
 			return;
 		}
 
-		// TODO: pars uri params
+		if (uriContainParam()) {
+			this.request.addParams(this.request.getPath().split("\\?")[1]);
+		}
 
-		// TODO: pars request body
-		// if the request is post pars the body params
+		if (request.getMethod().equals("POST") && request.GetHedderValue("Content-Length") != null) {
+			char[] body = new char[Integer.parseInt(request.GetHedderValue("Content-Length"))];
+			input.read(body);
+			if (body.length > 0) {
+				this.request.addParams(new String(body));
+			}
+		}
+	}
+
+	private boolean uriContainParam() {
+		return this.request.getPath().contains("?");
 	}
 
 	private boolean isVersionSuported() {

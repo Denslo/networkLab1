@@ -24,7 +24,7 @@ public class Request {
 		if (str.split(" ").length != 3)
 			throw new Exception("pars error");
 
-		hedders.put("type", str);
+		this.type = str;
 	}
 
 	public Map<String, String> getHedders() {
@@ -55,16 +55,6 @@ public class Request {
 			}
 		}
 	}
-
-	//TODO remove
-/*	public void BadRequast() {
-		try {
-			this.addHeader("type:BAD Requast");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}*/
 
 	public String GetHttpVer() {
 		return this.getType().split(" ")[2];
