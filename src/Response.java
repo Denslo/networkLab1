@@ -121,4 +121,46 @@ public class Response {
 
 	}
 
+	public void setHEADR(String getHttpVer, int length, String fileExtention) {
+	
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Calendar cal = Calendar.getInstance();
+		String contentLength = String.valueOf(length);
+		String contentType = getContentType(fileExtention);
+		
+		this.addHedder("Content-Type", contentType);
+		this.addHedder("Content-Length", contentLength);
+		this.addHedder("Connection", "close");
+		this.addHedder("Date", dateFormat.format(cal.getTime()));
+		this.addHedder("Server", "Shai & Ran");
+	}
+
+	private String getContentType(String fileExtention) {
+		String contentType;
+		
+		switch (fileExtention) {
+		case "html":
+			contentType = "text/html";
+			break;
+			
+		case "bmp":
+		case "gif":
+		case "png":
+		case "jpg":
+			contentType = "image";
+			break;
+			
+		case "ico":
+			contentType = "icon";
+			break;
+			
+		default:
+			contentType = "application/octet-stream";
+			break;
+		}
+		
+		return contentType;
+	}
+
+
 }
