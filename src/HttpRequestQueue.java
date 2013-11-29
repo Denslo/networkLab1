@@ -11,38 +11,20 @@ public class HttpRequestQueue {
 		this.counter = 0;
 	}
 
-	public synchronized void Enqueue(Socket socket) {
-		
+	public synchronized void Enqueue(Socket socket) throws InterruptedException, IOException {
+
 		while (maxSize == counter) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			this.wait();
 		}
-		
-		this.addTocounter();
-		
-		try {
-			(new Thread(new HttpRequest(this, socket))).start();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-	public synchronized void Dequeue() {
-		this.removeFromcounter();
-		notifyAll();
-	}
-	
-	private void addTocounter(){
+
 		this.counter++;
+
+		(new Thread(new HttpRequest(this, socket))).start();
+
 	}
-	
-	private void removeFromcounter(){
+
+	public synchronized void Dequeue() {
 		this.counter--;
+		notifyAll();
 	}
 }

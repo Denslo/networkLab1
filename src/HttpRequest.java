@@ -16,8 +16,7 @@ public class HttpRequest implements Runnable {
 	private Request request = null;
 	private Response response = null;
 
-	public HttpRequest(HttpRequestQueue httpRequestQueue, Socket socket)
-			throws IOException {
+	public HttpRequest(HttpRequestQueue httpRequestQueue, Socket socket) throws IOException {
 		this.socket = socket;
 		this.queue = httpRequestQueue;
 		this.request = new Request();
@@ -29,173 +28,134 @@ public class HttpRequest implements Runnable {
 
 		try {
 
-			// read all requast
-			String line;
-			BufferedReader input = new BufferedReader(new InputStreamReader(
-					socket.getInputStream()));
+			this.response.setType(request.GetHttpVer() + " 200 OK");
 
-			while (!(line = input.readLine()).equals("")) {
-				System.out.println(line);
-				try {
-					request.Add(line);
-				} catch (Exception e) {
-					this.response.setBadRequest("HTTP/1.0");
-					handleRequest();
-				}
+			parsRequest();
+
+			if (response.isOK()) {
+				buildResponse();
 			}
 
-			this.response
-					.addResponsType(HedderUtil.getOK(request.GetHttpVer()));
-
-			if (!isMethodImplemented()) {
-				// set response as 501 not implemented
-				this.response.setNotImplemented(request.GetHttpVer());
-				handleRequest();
-			}
-
-			if (isVersionSuported()) {
-				if (!isVerOK()) {
-					// 400 bad requst
-					this.response.setBadRequest(request.GetHttpVer());
-					handleRequest();
-				}
-			} else {
-				// set as 505 not suported ver
-				this.response.setNotSupported(request.GetHttpVer());
-				handleRequest();
-			}
-
-			handleRequest();
+			sendResponse();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	private void handleRequest() throws Exception {
-
-		if (this.response.isOK()) {
-
-			switch (request.getMethod()) {
-			case "GET":
-				String path = null;
-
-				if (request.getPath().equals("/")) {
-					path = Server.prop.getProperty("root") + "index.html";
-				} else {
-					path = parsePath();
-				}
-
-				if (!path.startsWith(Server.prop.getProperty("root"))) {
-					response.setNoPermission(request.GetHttpVer());
-					break;
-				}
-
-				File reqFile = new File(path);
-
-				if (!reqFile.exists()) {
-					response.setNotFound(request.GetHttpVer());
-					break;
-				}
-				if (path.lastIndexOf(".") < 0) {
-					response.setUnsupportedMediaType(request.GetHttpVer());
-					break;
-				}
-
-				String fileExtention = path.substring(path.lastIndexOf(".") + 1);
-
-				if (!suportedType(fileExtention)) {
-					response.setUnsupportedMediaType(request.GetHttpVer());
-					break;
-				}
-
-				// testing
-				try {
-					FileInputStream fis = new FileInputStream(reqFile);
-					byte[] bFile = new byte[(int) reqFile.length()];
-					response.add("Content-Length", bFile.length + "");
-					// read until the end of the stream.
-					while (fis.available() != 0) {
-						fis.read(bFile, 0, bFile.length);
-					}
-					response.addData(bFile);
-				} catch (Exception e) {
-					// do something
-				}
-
-				break;
-			case "POST":
-
-				break;
-			case "OPTIONS":
-
-				if (request.getPath().equals("*")) {
-					response.setOPTIONS(request.GetHttpVer());
-				} else {
-					response.setBadRequest(request.GetHttpVer());
-					handleRequest();
-				}
-
-				break;
-			case "HEAD":
-
-				break;
-			case "TRACE":
-
-				for (Entry<String, String> header : request.GetHedders()
-						.entrySet()) {
-					response.add(header.getKey(), header.getValue());
-				}
-				break;
-
-			default:
-				this.response.setNotImplemented(request.GetHttpVer());
-				handleRequest();
-				break;
+			// TODO return 500 internal server error
+		} finally {
+			this.queue.Dequeue();
+			try {
+				this.socket.close();
+			} catch (IOException e) {
 			}
-
 		}
+	}
 
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+	private void sendResponse() {
 
-		out.println(response.getResponsType());
-		System.out.println(response.getResponsType());
-
-		for (Entry<String, String> header : response.getHeaders().entrySet()) {
-
-			String outStr = header.getKey() + ": " + header.getValue();
-
-			out.println(outStr);
-			System.out.println(outStr);
-		}
-		out.println("");
-		OutputStream out2 = socket.getOutputStream();
-		DataOutputStream dos = new DataOutputStream(out2);
-		dos.write(response.getData());
-
-		this.socket.close();
-		this.queue.Dequeue();
+		// TODO send response
+		// if length > 0 cheack chankes
+		// true - send in chankes
+		// else - send all
 
 	}
 
-	private boolean suportedType(String extention) {
-		boolean retVal = false;
-		if (extention.equals("ico") || extention.equals("bmp")
-				|| extention.equals("gif") || extention.equals("png")
-				|| extention.equals("jpg") || extention.equals("html")) {
-			retVal = true;
+	private void buildResponse() {
+
+		switch (request.getMethod()) {
+		case "GET":
+			buildGETResponse();
+			break;
+		case "POST":
+			buildPOSTResponse();
+			break;
+		case "OPTIONS":
+			buildOPTIONSResponse();
+			break;
+		case "HEAD":
+			buildHEADResponse();
+			break;
+		case "TRACE":
+			buildTRACEResponse();
+			break;
+
+		default:
+			this.response.setNotImplemented(request.GetHttpVer());
+			break;
 		}
-		return retVal;
+
 	}
 
-	private String parsePath() throws Exception {
-		if (request.getPath().contains("..")) {
-			this.response.setBadRequest(request.GetHttpVer());
-			handleRequest();
+	private void buildTRACEResponse() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void buildHEADResponse() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void buildOPTIONSResponse() {
+		if (request.getPath().equals("*")) {
+			response.setOPTIONS(request.GetHttpVer());
+		} else {
+			response.setBadRequest(request.GetHttpVer());
 		}
-		String path = request.getPath().substring(1).replace("/", "\\");
-		return Server.prop.getProperty("root").concat(path);
+	}
+
+	private void buildPOSTResponse() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void buildGETResponse() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void parsRequest() throws IOException, Exception {
+		String line;
+		BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+		// pars body
+		while (!(line = input.readLine()).equals("")) {
+
+			System.out.println(line);
+
+			try {
+				if (request.getType() == null) {
+					request.setType(line);
+				} else {
+					request.addHeader(line);
+				}
+			} catch (Exception e) {
+				this.response.setBadRequest("HTTP/1.0");
+				return;
+			}
+		}
+
+		// validate request
+		if (!isMethodImplemented()) {
+			// set response as 501 not implemented
+			this.response.setNotImplemented(request.GetHttpVer());
+			return;
+		}
+
+		if (isVersionSuported()) {
+			if (!isVerOK()) {
+				// 400 bad request
+				this.response.setBadRequest(request.GetHttpVer());
+				return;
+			}
+		} else {
+			// set as 505 not request ver
+			this.response.setNotSupported(request.GetHttpVer());
+			return;
+		}
+
+		// TODO: pars uri params
+
+		// TODO: pars request body
+		// if the request is post pars the body params
 	}
 
 	private boolean isVersionSuported() {
@@ -209,8 +169,7 @@ public class HttpRequest implements Runnable {
 	private boolean isVerOK() {
 		boolean retVal = false;
 
-		if (this.request.GetHttpVer().equals("HTTP/1.1")
-				&& this.request.GetHedderValue("Host") != null) {
+		if (this.request.GetHttpVer().equals("HTTP/1.1") && this.request.GetHedderValue("Host") != null) {
 			retVal = true;
 		}
 
@@ -240,4 +199,90 @@ public class HttpRequest implements Runnable {
 		return retVal;
 	}
 
+	/*
+	 * private void handleRequest() throws Exception {
+	 * 
+	 * if (this.response.isOK()) {
+	 * 
+	 * switch (request.getMethod()) { case "GET": String path = null;
+	 * 
+	 * if (request.getPath().equals("/")) { path =
+	 * Server.prop.getProperty("root") + "index.html"; } else { path =
+	 * parsePath(); }
+	 * 
+	 * if (!path.startsWith(Server.prop.getProperty("root"))) {
+	 * response.setNoPermission(request.GetHttpVer()); break; }
+	 * 
+	 * File reqFile = new File(path);
+	 * 
+	 * if (!reqFile.exists()) { response.setNotFound(request.GetHttpVer());
+	 * break; } if (path.lastIndexOf(".") < 0) {
+	 * response.setUnsupportedMediaType(request.GetHttpVer()); break; }
+	 * 
+	 * String fileExtention = path.substring(path.lastIndexOf(".") + 1);
+	 * 
+	 * if (!suportedType(fileExtention)) {
+	 * response.setUnsupportedMediaType(request.GetHttpVer()); break; }
+	 * 
+	 * // testing try {
+	 * 
+	 * @SuppressWarnings("resource") FileInputStream fis = new
+	 * FileInputStream(reqFile); byte[] bFile = new byte[(int)
+	 * reqFile.length()]; response.addHedder("Content-Length", bFile.length +
+	 * ""); // read until the end of the stream. while (fis.available() != 0) {
+	 * fis.read(bFile, 0, bFile.length); } response.setData(bFile); } catch
+	 * (Exception e) { // do something }
+	 * 
+	 * break; case "POST":
+	 * 
+	 * break; case "OPTIONS":
+	 * 
+	 * if (request.getPath().equals("*")) {
+	 * response.setOPTIONS(request.GetHttpVer()); } else {
+	 * response.setBadRequest(request.GetHttpVer()); handleRequest(); }
+	 * 
+	 * break; case "HEAD":
+	 * 
+	 * break; case "TRACE":
+	 * 
+	 * for (Entry<String, String> header : request.GetHedders().entrySet()) {
+	 * response.addHedder(header.getKey(), header.getValue()); } break;
+	 * 
+	 * default: this.response.setNotImplemented(request.GetHttpVer());
+	 * handleRequest(); break; }
+	 * 
+	 * }
+	 * 
+	 * PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+	 * 
+	 * out.println(response.getType()); System.out.println(response.getType());
+	 * 
+	 * for (Entry<String, String> header : response.getHeaders().entrySet()) {
+	 * 
+	 * String outStr = header.getKey() + ": " + header.getValue();
+	 * 
+	 * out.println(outStr); System.out.println(outStr); } out.println("");
+	 * OutputStream out2 = socket.getOutputStream(); DataOutputStream dos = new
+	 * DataOutputStream(out2); dos.write(response.getData());
+	 * 
+	 * this.socket.close(); this.queue.Dequeue();
+	 * 
+	 * }
+	 */
+
+	/*
+	 * private boolean suportedType(String extention) { boolean retVal = false;
+	 * if (extention.equals("ico") || extention.equals("bmp") ||
+	 * extention.equals("gif") || extention.equals("png") ||
+	 * extention.equals("jpg") || extention.equals("html")) { retVal = true; }
+	 * return retVal; }
+	 */
+
+	/*
+	 * private String parsePath() throws Exception { if
+	 * (request.getPath().contains("..")) {
+	 * this.response.setBadRequest(request.GetHttpVer()); } String path =
+	 * request.getPath().substring(1).replace("/", "\\"); return
+	 * Server.prop.getProperty("root").concat(path); }
+	 */
 }

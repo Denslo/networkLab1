@@ -3,58 +3,79 @@ import java.util.Map;
 
 public class Request {
 
-	private Map<String, String> request = null;
+	private String type = null;
+	private Map<String, String> hedders = null;
+	private Map<String, String> params = null;
 
 	public Request() {
-		request = new HashMap<String, String>();
+		hedders = new HashMap<String, String>();
+		params = new HashMap<String, String>();
 	}
 
-	public void Add(String obj) throws Exception {
-		if (request.isEmpty()) {
-			if (obj.split(" ").length != 3)
-				throw new Exception();
-			request.put("type", obj);
-		} else {
-			String key = obj.substring(0, obj.indexOf(":"));
-			String value = obj.substring(obj.indexOf(":") + 1);
-			request.put(key.trim(), value.trim());
+	public void addHeader(String str) throws Exception {
 
-		}
+		String key = str.substring(0, str.indexOf(":"));
+		String value = str.substring(str.indexOf(":") + 1);
+		hedders.put(key.trim(), value.trim());
 	}
 	
-	public Map<String, String> GetHedders() {
-		Map<String, String> retMap = new HashMap<>(request);
-		retMap.remove("type");
-		return retMap;
+	public void setType (String str) throws Exception{
+		
+		if (str.split(" ").length != 3)
+			throw new Exception("pars error");
+
+		hedders.put("type", str);
+	}
+
+	public Map<String, String> getHedders() {
+		return new HashMap<>(hedders);
+	}
+	
+	public Map<String, String> getParams() {
+		return new HashMap<>(params);
 	}
 
 	public String GetHedderValue(String hedder) {
-		return request.get(hedder);
+		return hedders.get(hedder);
 	}
 
-	public String GetType() {
-		return this.GetHedderValue("type");
+	public String getType() {
+		return this.type;
+	}
+	
+	public void addParams(String str){
+		
+		if (str != null && !str.equals("")) {
+			String[] parameters = str.split("&");
+			for (String subStr : parameters) {
+				String[] param = subStr.split("=");
+				if (param.length == 2) {
+					this.params.put(param[0], param[1]);
+				}
+			}
+		}
 	}
 
-	public void BadRequast() {
+	//TODO remove
+/*	public void BadRequast() {
 		try {
-			this.Add("type:BAD Requast");
+			this.addHeader("type:BAD Requast");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	public String GetHttpVer() {
-		return this.GetType().split(" ")[2];
+		return this.getType().split(" ")[2];
 	}
 
 	public String getMethod() {
-		return this.GetType().split(" ")[0];
+		return this.getType().split(" ")[0];
 	}
-	
+
 	public String getPath() {
-		return this.GetType().split(" ")[1];
+		return this.getType().split(" ")[1];
 	}
 
 }
