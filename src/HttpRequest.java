@@ -87,22 +87,33 @@ public class HttpRequest implements Runnable {
 
 	private void buildTRACEResponse() {
 		// TODO Auto-generated method stub
+		if (!(request.getPath().equalsIgnoreCase("/"))){
+			response.setBadRequest(request.GetHttpVer());
+		} else {
+			response.setTRACE(request);
+		}
 
 	}
 
 	private void buildHEADResponse() {
-		// TODO Auto-generated method stub
+		
 		if (request.getPath().contains("..")) {
+			
 			response.setNoPermission(request.GetHttpVer());
+			
 		} else {
+			
 			String realPath = "c:\\rootserver" + request.getPath(); 
 			File requestFile = new File(realPath.replaceAll("/", "\\"));
 
 			if (!requestFile.exists()) {
+				
 				response.setNotFound(request.GetHttpVer());
+				
 			} else {
+				
 				String fileExtention = request.getPath().substring(request.getPath().lastIndexOf(".") + 1);
-				response.setHEADR(request.GetHttpVer(),(int)requestFile.length(),fileExtention);
+				response.setHEAD(request.GetHttpVer(),(int)requestFile.length(),fileExtention);
 			}
 		}
 	}

@@ -3,6 +3,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Response {
 
@@ -121,7 +122,7 @@ public class Response {
 
 	}
 
-	public void setHEADR(String getHttpVer, int length, String fileExtention) {
+	public void setHEAD(String getHttpVer, int length, String fileExtention) {
 	
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Calendar cal = Calendar.getInstance();
@@ -135,6 +136,21 @@ public class Response {
 		this.addHedder("Server", "Shai & Ran");
 	}
 
+	public void setTRACE(Request request) {
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Calendar cal = Calendar.getInstance();
+		
+		this.addHedder("Content-Type", "application/octet-stream");
+		this.addHedder("Connection", "close");
+		this.addHedder("Date", dateFormat.format(cal.getTime()));
+		this.addHedder("Server", "Shai & Ran");
+		 for (Entry<String, String> header : request.getHedders().entrySet()) {
+		 
+		 }
+		
+	}
+	
 	private String getContentType(String fileExtention) {
 		String contentType;
 		
@@ -161,6 +177,7 @@ public class Response {
 		
 		return contentType;
 	}
+
 
 
 }
