@@ -18,9 +18,9 @@ public class Request {
 		String value = str.substring(str.indexOf(":") + 1);
 		hedders.put(key.trim(), value.trim());
 	}
-	
-	public void setType (String str) throws Exception{
-		
+
+	public void setType(String str) throws Exception {
+
 		if (str.split(" ").length != 3)
 			throw new Exception("pars error");
 
@@ -30,7 +30,7 @@ public class Request {
 	public Map<String, String> getHedders() {
 		return new HashMap<>(hedders);
 	}
-	
+
 	public Map<String, String> getParams() {
 		return new HashMap<>(params);
 	}
@@ -42,9 +42,9 @@ public class Request {
 	public String getType() {
 		return this.type;
 	}
-	
-	public void addParams(String str){
-		
+
+	public void addParams(String str) {
+
 		if (str != null && !str.equals("")) {
 			String[] parameters = str.split("&");
 			for (String subStr : parameters) {
@@ -64,8 +64,11 @@ public class Request {
 		return this.getType().split(" ")[0];
 	}
 
-	public String getPath() {
+	public String getURI() {
 		return this.getType().split(" ")[1];
 	}
 
+	public String getPath() {
+		return Server.prop.getProperty("root") + this.getURI().substring(1).replaceAll("/", "\\");
+	}
 }

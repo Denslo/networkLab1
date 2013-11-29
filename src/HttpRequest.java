@@ -1,8 +1,8 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.nio.CharBuffer;
 
 public class HttpRequest implements Runnable {
 
@@ -11,8 +11,7 @@ public class HttpRequest implements Runnable {
 	private Request request = null;
 	private Response response = null;
 
-	public HttpRequest(HttpRequestQueue httpRequestQueue, Socket socket)
-			throws IOException {
+	public HttpRequest(HttpRequestQueue httpRequestQueue, Socket socket) throws IOException {
 		this.socket = socket;
 		this.queue = httpRequestQueue;
 		this.request = new Request();
@@ -81,7 +80,7 @@ public class HttpRequest implements Runnable {
 	}
 
 	private void buildTRACEResponse() {
-		if (!(request.getPath().equalsIgnoreCase("/"))) {
+		if (!(request.getURI().equalsIgnoreCase("/"))) {
 			response.setBadRequest(request.GetHttpVer());
 		} else {
 			response.setTRACE(request);
@@ -91,31 +90,34 @@ public class HttpRequest implements Runnable {
 
 	private void buildHEADResponse() {
 
-		if (request.getPath().contains("..")) {
+		if (filePathOK()) {
 
-			response.setNoPermission(request.GetHttpVer());
+			File requestFile = new File(request.getPath());
 
-		} else {
-
-			String realPath = "c:\\rootserver" + request.getPath();
-			File requestFile = new File(realPath.replaceAll("/", "\\"));
-
-			if (!requestFile.exists()) {
-
-				response.setNotFound(request.GetHttpVer());
-
-			} else {
-
-				String fileExtention = request.getPath().substring(
-						request.getPath().lastIndexOf(".") + 1);
-				response.setHEAD(request.GetHttpVer(),
-						(int) requestFile.length(), fileExtention);
-			}
+			String fileExtention = request.getURI().substring(request.getURI().lastIndexOf(".") + 1);
+			response.setHEAD((int) requestFile.length(), fileExtention);
 		}
 	}
 
+	private boolean filePathOK() {
+
+		boolean ret = false;
+
+		File requestFile = new File(request.getPath());
+
+		if (requestFile.exists()) {
+			ret = true;
+		}
+
+		if (request.getURI().contains("..")) {
+			ret = false;
+		}
+
+		return ret;
+	}
+
 	private void buildOPTIONSResponse() {
-		if (request.getPath().equals("*")) {
+		if (request.getURI().equals("*")) {
 			response.setOPTIONS(request.GetHttpVer());
 		} else {
 			response.setBadRequest(request.GetHttpVer());
@@ -128,33 +130,12 @@ public class HttpRequest implements Runnable {
 	}
 
 	private void buildGETResponse() {
-		if (request.getPath().contains("..")) {
-
-			response.setNoPermission(request.GetHttpVer());
-
-		} else {
-
-			String realPath = "c:\\rootserver" + request.getPath();
-			File requestFile = new File(realPath.replaceAll("/", "\\"));
-
-			if (!requestFile.exists()) {
-
-				response.setNotFound(request.GetHttpVer());
-
-			} else {
-
-				String fileExtention = request.getPath().substring(
-						request.getPath().lastIndexOf(".") + 1);
-				response.setHEAD(request.GetHttpVer(),
-						(int) requestFile.length(), fileExtention);
-			}
-		}
+		// TODO Auto-generated method stub
 	}
 
 	private void parsRequest() throws IOException, Exception {
 		String line;
-		BufferedReader input = new BufferedReader(new InputStreamReader(
-				socket.getInputStream()));
+		BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
 		// pars body
 		while (!(line = input.readLine()).equals("")) {
@@ -194,7 +175,7 @@ public class HttpRequest implements Runnable {
 		}
 
 		if (uriContainParam()) {
-			this.request.addParams(this.request.getPath().split("\\?")[1]);
+			this.request.addParams(this.request.getURI().split("\\?")[1]);
 		}
 
 		if (request.getMethod().equals("POST") && request.GetHedderValue("Content-Length") != null) {
@@ -207,7 +188,7 @@ public class HttpRequest implements Runnable {
 	}
 
 	private boolean uriContainParam() {
-		return this.request.getPath().contains("?");
+		return this.request.getURI().contains("?");
 	}
 
 	private boolean isVersionSuported() {
@@ -221,8 +202,7 @@ public class HttpRequest implements Runnable {
 	private boolean isVerOK() {
 		boolean retVal = false;
 
-		if (this.request.GetHttpVer().equals("HTTP/1.1")
-				&& this.request.GetHedderValue("Host") != null) {
+		if (this.request.GetHttpVer().equals("HTTP/1.1") && this.request.GetHedderValue("Host") != null) {
 			retVal = true;
 		}
 

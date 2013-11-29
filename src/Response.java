@@ -112,90 +112,90 @@ public class Response {
 
 	public void setOPTIONS(String httpVersion) {
 
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Calendar cal = Calendar.getInstance();
+		setDefultHeaders();
 
 		this.addHedder("Allow", "GET, POST, OPTIONS, HEAD, TRACE");
-		this.addHedder("Content-Length", "0");
-		this.addHedder("Date", dateFormat.format(cal.getTime()));
-		this.addHedder("Server", "Shai & Ran");
 
 	}
 
-	public void setHEAD(String getHttpVer, int length, String fileExtention) {
-	
+	public void setHEAD(int length, String fileExtention) {
+
+		setDefultHeaders();
+
+		this.addHedder("Content-Type", getContentType(fileExtention));
+		String contentLength = String.valueOf(length);
+		this.addHedder("Content-Length", contentLength);
+	}
+
+	private void setDefultHeaders() {
+
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Calendar cal = Calendar.getInstance();
-		String contentLength = String.valueOf(length);
-		String contentType = getContentType(fileExtention);
-		
-		this.addHedder("Content-Type", contentType);
-		this.addHedder("Content-Length", contentLength);
+
 		this.addHedder("Connection", "close");
 		this.addHedder("Date", dateFormat.format(cal.getTime()));
 		this.addHedder("Server", "Shai & Ran");
+
 	}
 
 	public void setTRACE(Request request) {
-		
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Calendar cal = Calendar.getInstance();
-		StringBuilder stringHeadr = null;
-		
-		this.addHedder("Content-Type", "application/octet-stream");
-		this.addHedder("Connection", "close");
-		this.addHedder("Date", dateFormat.format(cal.getTime()));
-		this.addHedder("Server", "Shai & Ran");
-		
-		
-		 for (Entry<String, String> req : request.getHedders().entrySet()) {
-			 stringHeadr.append(req + "\n");
-		 }
-		data = String.valueOf(stringHeadr).getBytes(); 
+
+		setDefultHeaders();
+		this.addHedder("Content-Type", getContentType(" "));
+		StringBuilder stringHeadr = new StringBuilder();
+		stringHeadr.append(request.getType() + "\n");
+
+		for (Entry<String, String> req : request.getHedders().entrySet()) {
+			stringHeadr.append(req.getKey() + ": " + req.getValue() + "\n");
+		}
+
+		stringHeadr.append("\n");
+
+		for (Entry<String, String> req : request.getParams().entrySet()) {
+			stringHeadr.append(req.getKey() + "=" + req.getValue() + "&");
+		}
+
+		stringHeadr.subSequence(0, stringHeadr.length() - 2);
+
+		data = String.valueOf(stringHeadr).getBytes();
 	}
-	
-	public void setGET(String getHttpVer, int length, String fileExtention) {
-		
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Calendar cal = Calendar.getInstance();
+
+	public void setGET(int length, String fileExtention) {
+
+		setDefultHeaders();
+
 		String contentLength = String.valueOf(length);
 		String contentType = getContentType(fileExtention);
-		
+
 		this.addHedder("Content-Type", contentType);
 		this.addHedder("Content-Length", contentLength);
-		this.addHedder("Connection", "close");
-		this.addHedder("Date", dateFormat.format(cal.getTime()));
-		this.addHedder("Server", "Shai & Ran");
 	}
-	
+
 	private String getContentType(String fileExtention) {
 		String contentType;
-		
+
 		switch (fileExtention) {
 		case "html":
 			contentType = "text/html";
 			break;
-			
+
 		case "bmp":
 		case "gif":
 		case "png":
 		case "jpg":
 			contentType = "image";
 			break;
-			
+
 		case "ico":
 			contentType = "icon";
 			break;
-			
+
 		default:
 			contentType = "application/octet-stream";
 			break;
 		}
-		
+
 		return contentType;
 	}
-
-
-
 
 }
