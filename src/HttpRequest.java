@@ -86,8 +86,7 @@ public class HttpRequest implements Runnable {
 	}
 
 	private void buildTRACEResponse() {
-		// TODO Auto-generated method stub
-		if (!(request.getPath().equalsIgnoreCase("/"))){
+		if (!(request.getPath().equalsIgnoreCase("/"))) {
 			response.setBadRequest(request.GetHttpVer());
 		} else {
 			response.setTRACE(request);
@@ -96,24 +95,26 @@ public class HttpRequest implements Runnable {
 	}
 
 	private void buildHEADResponse() {
-		
+
 		if (request.getPath().contains("..")) {
-			
+
 			response.setNoPermission(request.GetHttpVer());
-			
+
 		} else {
-			
-			String realPath = "c:\\rootserver" + request.getPath(); 
+
+			String realPath = "c:\\rootserver" + request.getPath();
 			File requestFile = new File(realPath.replaceAll("/", "\\"));
 
 			if (!requestFile.exists()) {
-				
+
 				response.setNotFound(request.GetHttpVer());
-				
+
 			} else {
-				
-				String fileExtention = request.getPath().substring(request.getPath().lastIndexOf(".") + 1);
-				response.setHEAD(request.GetHttpVer(),(int)requestFile.length(),fileExtention);
+
+				String fileExtention = request.getPath().substring(
+						request.getPath().lastIndexOf(".") + 1);
+				response.setHEAD(request.GetHttpVer(),
+						(int) requestFile.length(), fileExtention);
 			}
 		}
 	}
@@ -132,8 +133,27 @@ public class HttpRequest implements Runnable {
 	}
 
 	private void buildGETResponse() {
-		// TODO Auto-generated method stub
+		if (request.getPath().contains("..")) {
 
+			response.setNoPermission(request.GetHttpVer());
+
+		} else {
+
+			String realPath = "c:\\rootserver" + request.getPath();
+			File requestFile = new File(realPath.replaceAll("/", "\\"));
+
+			if (!requestFile.exists()) {
+
+				response.setNotFound(request.GetHttpVer());
+
+			} else {
+
+				String fileExtention = request.getPath().substring(
+						request.getPath().lastIndexOf(".") + 1);
+				response.setHEAD(request.GetHttpVer(),
+						(int) requestFile.length(), fileExtention);
+			}
+		}
 	}
 
 	private void parsRequest() throws IOException, Exception {
