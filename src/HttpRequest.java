@@ -11,7 +11,8 @@ public class HttpRequest implements Runnable {
 	private Request request = null;
 	private Response response = null;
 
-	public HttpRequest(HttpRequestQueue httpRequestQueue, Socket socket) throws IOException {
+	public HttpRequest(HttpRequestQueue httpRequestQueue, Socket socket)
+			throws IOException {
 		this.socket = socket;
 		this.queue = httpRequestQueue;
 		this.request = new Request();
@@ -80,13 +81,37 @@ public class HttpRequest implements Runnable {
 	}
 
 	private void buildTRACEResponse() {
-		// TODO Auto-generated method stub
+		if (!(request.getPath().equalsIgnoreCase("/"))) {
+			response.setBadRequest(request.GetHttpVer());
+		} else {
+			response.setTRACE(request);
+		}
 
 	}
 
 	private void buildHEADResponse() {
-		// TODO Auto-generated method stub
 
+		if (request.getPath().contains("..")) {
+
+			response.setNoPermission(request.GetHttpVer());
+
+		} else {
+
+			String realPath = "c:\\rootserver" + request.getPath();
+			File requestFile = new File(realPath.replaceAll("/", "\\"));
+
+			if (!requestFile.exists()) {
+
+				response.setNotFound(request.GetHttpVer());
+
+			} else {
+
+				String fileExtention = request.getPath().substring(
+						request.getPath().lastIndexOf(".") + 1);
+				response.setHEAD(request.GetHttpVer(),
+						(int) requestFile.length(), fileExtention);
+			}
+		}
 	}
 
 	private void buildOPTIONSResponse() {
@@ -103,13 +128,33 @@ public class HttpRequest implements Runnable {
 	}
 
 	private void buildGETResponse() {
-		// TODO Auto-generated method stub
+		if (request.getPath().contains("..")) {
 
+			response.setNoPermission(request.GetHttpVer());
+
+		} else {
+
+			String realPath = "c:\\rootserver" + request.getPath();
+			File requestFile = new File(realPath.replaceAll("/", "\\"));
+
+			if (!requestFile.exists()) {
+
+				response.setNotFound(request.GetHttpVer());
+
+			} else {
+
+				String fileExtention = request.getPath().substring(
+						request.getPath().lastIndexOf(".") + 1);
+				response.setHEAD(request.GetHttpVer(),
+						(int) requestFile.length(), fileExtention);
+			}
+		}
 	}
 
 	private void parsRequest() throws IOException, Exception {
 		String line;
-		BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		BufferedReader input = new BufferedReader(new InputStreamReader(
+				socket.getInputStream()));
 
 		// pars body
 		while (!(line = input.readLine()).equals("")) {
@@ -176,7 +221,8 @@ public class HttpRequest implements Runnable {
 	private boolean isVerOK() {
 		boolean retVal = false;
 
-		if (this.request.GetHttpVer().equals("HTTP/1.1") && this.request.GetHedderValue("Host") != null) {
+		if (this.request.GetHttpVer().equals("HTTP/1.1")
+				&& this.request.GetHedderValue("Host") != null) {
 			retVal = true;
 		}
 

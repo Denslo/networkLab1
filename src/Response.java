@@ -3,6 +3,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Response {
 
@@ -120,5 +121,81 @@ public class Response {
 		this.addHedder("Server", "Shai & Ran");
 
 	}
+
+	public void setHEAD(String getHttpVer, int length, String fileExtention) {
+	
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Calendar cal = Calendar.getInstance();
+		String contentLength = String.valueOf(length);
+		String contentType = getContentType(fileExtention);
+		
+		this.addHedder("Content-Type", contentType);
+		this.addHedder("Content-Length", contentLength);
+		this.addHedder("Connection", "close");
+		this.addHedder("Date", dateFormat.format(cal.getTime()));
+		this.addHedder("Server", "Shai & Ran");
+	}
+
+	public void setTRACE(Request request) {
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Calendar cal = Calendar.getInstance();
+		StringBuilder stringHeadr = null;
+		
+		this.addHedder("Content-Type", "application/octet-stream");
+		this.addHedder("Connection", "close");
+		this.addHedder("Date", dateFormat.format(cal.getTime()));
+		this.addHedder("Server", "Shai & Ran");
+		
+		
+		 for (Entry<String, String> req : request.getHedders().entrySet()) {
+			 stringHeadr.append(req + "\n");
+		 }
+		data = String.valueOf(stringHeadr).getBytes(); 
+	}
+	
+	public void setGET(String getHttpVer, int length, String fileExtention) {
+		
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Calendar cal = Calendar.getInstance();
+		String contentLength = String.valueOf(length);
+		String contentType = getContentType(fileExtention);
+		
+		this.addHedder("Content-Type", contentType);
+		this.addHedder("Content-Length", contentLength);
+		this.addHedder("Connection", "close");
+		this.addHedder("Date", dateFormat.format(cal.getTime()));
+		this.addHedder("Server", "Shai & Ran");
+	}
+	
+	private String getContentType(String fileExtention) {
+		String contentType;
+		
+		switch (fileExtention) {
+		case "html":
+			contentType = "text/html";
+			break;
+			
+		case "bmp":
+		case "gif":
+		case "png":
+		case "jpg":
+			contentType = "image";
+			break;
+			
+		case "ico":
+			contentType = "icon";
+			break;
+			
+		default:
+			contentType = "application/octet-stream";
+			break;
+		}
+		
+		return contentType;
+	}
+
+
+
 
 }
