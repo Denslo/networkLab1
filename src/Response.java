@@ -161,7 +161,7 @@ public class Response {
 		String contentLength = String.valueOf(length);
 		String contentType = getContentType(fileExtention);
 		
-		this.addHedder("Content-Type", contentType);
+		this.addHedder("Content-Type", contentType);2
 		this.addHedder("Content-Length", contentLength);
 		this.addHedder("Connection", "close");
 		this.addHedder("Date", dateFormat.format(cal.getTime()));

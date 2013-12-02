@@ -113,8 +113,7 @@ public class HttpRequest implements Runnable {
 
 				String fileExtention = request.getPath().substring(
 						request.getPath().lastIndexOf(".") + 1);
-				response.setHEAD(request.GetHttpVer(),
-						(int) requestFile.length(), fileExtention);
+				response.setHEAD(request.GetHttpVer(),(int) requestFile.length(), fileExtention);
 			}
 		}
 	}
@@ -150,8 +149,7 @@ public class HttpRequest implements Runnable {
 
 				String fileExtention = request.getPath().substring(
 						request.getPath().lastIndexOf(".") + 1);
-				response.setHEAD(request.GetHttpVer(),
-						(int) requestFile.length(), fileExtention);
+				response.setGET(request.GetHttpVer(),(int) requestFile.length(), fileExtention);
 			}
 		}
 	}
