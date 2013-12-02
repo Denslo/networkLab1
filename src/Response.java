@@ -4,6 +4,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class Response {
 
@@ -25,7 +28,7 @@ public class Response {
 		return headers.get(key);
 	}
 
-	public void addHedder(String key, String value) {
+	public void addHeader(String key, String value) {
 		headers.put(key, value);
 
 	}
@@ -102,11 +105,11 @@ public class Response {
 		this.setType(httpVersion + errorType);
 		this.headers.clear();
 		this.data = null;
-		this.addHedder("Content-Type", "text/html");
-		this.addHedder("Content-Length", "0");
-		this.addHedder("Connection", "close");
-		this.addHedder("Date", dateFormat.format(cal.getTime()));
-		this.addHedder("Server", "Shai & Ran");
+		this.addHeader("Content-Type", "text/html");
+		this.addHeader("Content-Length", "0");
+		this.addHeader("Connection", "close");
+		this.addHeader("Date", dateFormat.format(cal.getTime()));
+		this.addHeader("Server", "Shai & Ran");
 
 	}
 
@@ -114,7 +117,7 @@ public class Response {
 
 		setDefultHeaders();
 
-		this.addHedder("Allow", "GET, POST, OPTIONS, HEAD, TRACE");
+		this.addHeader("Allow", "GET, POST, OPTIONS, HEAD, TRACE");
 
 	}
 
@@ -122,9 +125,9 @@ public class Response {
 
 		setDefultHeaders();
 
-		this.addHedder("Content-Type", getContentType(fileExtention));
+		this.addHeader("Content-Type", getContentType(fileExtention));
 		String contentLength = String.valueOf(length);
-		this.addHedder("Content-Length", contentLength);
+		this.addHeader("Content-Length", contentLength);
 	}
 
 	private void setDefultHeaders() {
@@ -132,16 +135,16 @@ public class Response {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Calendar cal = Calendar.getInstance();
 
-		this.addHedder("Connection", "close");
-		this.addHedder("Date", dateFormat.format(cal.getTime()));
-		this.addHedder("Server", "Shai & Ran");
+		this.addHeader("Connection", "close");
+		this.addHeader("Date", dateFormat.format(cal.getTime()));
+		this.addHeader("Server", "Shai & Ran");
 
 	}
 
 	public void setTRACE(Request request) {
 
 		setDefultHeaders();
-		this.addHedder("Content-Type", getContentType(" "));
+		this.addHeader("Content-Type", getContentType(" "));
 		StringBuilder stringHeadr = new StringBuilder();
 		stringHeadr.append(request.getType() + "\n");
 
@@ -160,15 +163,19 @@ public class Response {
 		data = String.valueOf(stringHeadr).getBytes();
 	}
 
-	public void setGET(int length, String fileExtention) {
+	public void setGETandPOST(int length, String fileExtention, File requestFile)
+			throws IOException {
 
 		setDefultHeaders();
 
 		String contentLength = String.valueOf(length);
 		String contentType = getContentType(fileExtention);
 
-		this.addHedder("Content-Type", contentType);
-		this.addHedder("Content-Length", contentLength);
+		this.addHeader("Content-Type", contentType);
+		this.addHeader("Content-Length", contentLength);
+
+		FileInputStream fileStream = new FileInputStream(requestFile);
+		fileStream.read(data);
 	}
 
 	private String getContentType(String fileExtention) {

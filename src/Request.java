@@ -35,7 +35,7 @@ public class Request {
 		return new HashMap<>(params);
 	}
 
-	public String GetHedderValue(String hedder) {
+	public String getHeaderValue(String hedder) {
 		return hedders.get(hedder);
 	}
 

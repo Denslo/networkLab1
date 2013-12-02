@@ -53,7 +53,7 @@ public class HttpRequest implements Runnable {
 
 	}
 
-	private void buildResponse() {
+	private void buildResponse() throws IOException {
 
 		switch (request.getMethod()) {
 		case "GET":
@@ -124,13 +124,28 @@ public class HttpRequest implements Runnable {
 		}
 	}
 
-	private void buildPOSTResponse() {
-		// TODO Auto-generated method stub
+	private void buildPOSTResponse() throws IOException {
+		if (filePathOK()){
+			
+			File requestFile = new File(request.getPath());
+			String fileExtention = request.getURI().substring(request.getURI().lastIndexOf(".") + 1);
+			int fileLength = (int) requestFile.length();
+			
+			response.setGETandPOST(fileLength, fileExtention, requestFile);
+		}
 
 	}
 
-	private void buildGETResponse() {
-		// TODO Auto-generated method stub
+	private void buildGETResponse() throws IOException {
+		if (filePathOK()){
+			
+			File requestFile = new File(request.getPath());
+			String fileExtention = request.getURI().substring(request.getURI().lastIndexOf(".") + 1);
+			int fileLength = (int) requestFile.length();
+			
+			response.setGETandPOST(fileLength, fileExtention, requestFile);
+		}
+		
 	}
 
 	private void parsRequest() throws IOException, Exception {
@@ -178,8 +193,8 @@ public class HttpRequest implements Runnable {
 			this.request.addParams(this.request.getURI().split("\\?")[1]);
 		}
 
-		if (request.getMethod().equals("POST") && request.GetHedderValue("Content-Length") != null) {
-			char[] body = new char[Integer.parseInt(request.GetHedderValue("Content-Length"))];
+		if (request.getMethod().equals("POST") && request.getHeaderValue("Content-Length") != null) {
+			char[] body = new char[Integer.parseInt(request.getHeaderValue("Content-Length"))];
 			input.read(body);
 			if (body.length > 0) {
 				this.request.addParams(new String(body));
@@ -202,7 +217,7 @@ public class HttpRequest implements Runnable {
 	private boolean isVerOK() {
 		boolean retVal = false;
 
-		if (this.request.GetHttpVer().equals("HTTP/1.1") && this.request.GetHedderValue("Host") != null) {
+		if (this.request.GetHttpVer().equals("HTTP/1.1") && this.request.getHeaderValue("Host") != null) {
 			retVal = true;
 		}
 
