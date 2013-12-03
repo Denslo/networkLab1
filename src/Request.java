@@ -50,7 +50,9 @@ public class Request {
 			for (String subStr : parameters) {
 				String[] param = subStr.split("=");
 				if (param.length == 2) {
-					this.params.put(param[0], param[1]);
+					if (this.params.get(param[0]) == null) {
+						this.params.put(param[0], param[1]);
+					}
 				}
 			}
 		}
@@ -70,5 +72,10 @@ public class Request {
 
 	public String getPath() {
 		return Server.prop.getProperty("root") + this.getURI().substring(1).replaceAll("/", "\\");
+	}
+
+	public void setPath(String string) {
+		this.type = this.getMethod() + " " + string + " " + this.GetHttpVer();
+
 	}
 }

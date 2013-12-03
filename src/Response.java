@@ -163,8 +163,7 @@ public class Response {
 		data = String.valueOf(stringHeadr).getBytes();
 	}
 
-	public void setGETandPOST(int length, String fileExtention, File requestFile)
-			throws IOException {
+	public void setGETandPOST(int length, String fileExtention, File requestFile) throws IOException {
 
 		setDefultHeaders();
 
@@ -174,7 +173,9 @@ public class Response {
 		this.addHeader("Content-Type", contentType);
 		this.addHeader("Content-Length", contentLength);
 
+		@SuppressWarnings("resource")
 		FileInputStream fileStream = new FileInputStream(requestFile);
+		data = new byte[length];
 		fileStream.read(data);
 	}
 
